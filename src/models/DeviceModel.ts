@@ -1,53 +1,67 @@
-import { Schema, model, SchemaTypes, Types, Date } from "mongoose"
+import { Schema, model } from "mongoose"
 
-export interface IDeviceUsingHistory {
-    startTime: Date
-    endTime: Date
-    duration: number
-    restTime: number
-    voltage: number
-    frequency: number
-    step: number
+export interface IStat {
+    data: number
+    createdAt: Date
+}
+export interface INode {
+    temperature: IStat[]
+    humidity: IStat[]
+}
+export interface IDevicePower {
+    lipoBatt: IStat[]
+    solar: IStat[]
+}
+export interface IEnvironment {
+    humidity: IStat[]
 }
 export interface IDevice {
     _id: string
-    patient_id: string
     name: string
-    voltage: number
-    frequency: number
-    restTime: number
-    deviceUsingHistory: [IDeviceUsingHistory]
+    node_1: INode 
+    node_2: INode 
+    environment: IEnvironment 
+    devicePower: IDevicePower
 }
 
 const schema = new Schema<IDevice>({
-    patient_id: {
-        type: String,
-        validate: {
-            validator: function (id: string) {
-                if (Types.ObjectId.isValid(id)) {
-                    if (String(new Types.ObjectId(id)) === id) return true
-                    return false
-                }
-                return false
-            },
-            message: (props) => `${props.value} is not a valid ObjectId!`,
-        },
-    },
     name: { type: String, required: true },
-    voltage: { type: Number },
-    frequency: { type: Number },
-    restTime: { type: Number },
-    deviceUsingHistory: [
-        {
-            startTime: { type: Date, required: true },
-            endTime: { type: Date, required: true },
-            duration: { type: Number, required: true },
-            restTime: { type: Number, required: true },
-            voltage: { type: Number, required: true },
-            frequency: { type: Number, required: true },
-            step: { type: Number, required: true },
-        },
-    ],
+    node_1:  { 
+        temperature: [{
+            data: Number,
+            createdAt: Date
+        }],
+        humidity: [{
+            data: Number,
+            createdAt: Date
+        }]
+    }, 
+    node_2:  { 
+        temperature: [{
+            data: Number,
+            createdAt: Date
+        }],
+        humidity: [{
+            data: Number,
+            createdAt: Date
+        }]
+    }, 
+    environment:  { 
+        humidity: [{
+            data: Number,
+            createdAt: Date
+        }]
+    }, 
+    devicePower:  { 
+        lipoBatt: [{
+            data: Number,
+            createdAt: Date
+        }],
+        solar: [{
+            data: Number,
+            createdAt: Date
+        }]
+    }, 
 })
 
 const DeviceModel = model<IDevice>("Device", schema)

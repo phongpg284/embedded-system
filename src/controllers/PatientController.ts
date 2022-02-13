@@ -80,46 +80,46 @@ class PatientController {
         }
     }
 
-    getHistoryDevice = async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params
-        try {
-            const device = await this.deviceService.getByPatientId(id)
-            if (!device.data) return res.status(device.statusCode).json(device)
+    // getHistoryDevice = async (req: Request, res: Response, next: NextFunction) => {
+    //     const { id } = req.params
+    //     try {
+    //         const device = await this.deviceService.getByPatientId(id)
+    //         if (!device.data) return res.status(device.statusCode).json(device)
 
-            const response = await this.deviceService.getHistory(device.data._id)
-            return res.status(response.statusCode).json(response)
-        } catch (e) {
-            next(e)
-        }
-    }
+    //         const response = await this.deviceService.getHistory(device.data._id)
+    //         return res.status(response.statusCode).json(response)
+    //     } catch (e) {
+    //         next(e)
+    //     }
+    // }
 
-    getStatisticDevice = async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params
-        const { month, year, date } = req.query
-        try {
-            const device = await this.deviceService.getByPatientId(id)
-            if (!device.data) return res.status(device.statusCode).json(device)
-            const history = await this.deviceService.getHistory(device.data._id)
-            if (date) {
-                return res.status(history.statusCode).json(history)
-            }
-            if (!month || !year) return res.status(200).json({ message: "No query" })
+    // getStatisticDevice = async (req: Request, res: Response, next: NextFunction) => {
+    //     const { id } = req.params
+    //     const { month, year, date } = req.query
+    //     try {
+    //         const device = await this.deviceService.getByPatientId(id)
+    //         if (!device.data) return res.status(device.statusCode).json(device)
+    //         const history = await this.deviceService.getHistory(device.data._id)
+    //         if (date) {
+    //             return res.status(history.statusCode).json(history)
+    //         }
+    //         if (!month || !year) return res.status(200).json({ message: "No query" })
 
-            console.log(month + "-" + year)
-            //@ts-ignore
-            const startDate = new Date(parseInt(year), parseInt(month) - 1, 1)
-            const endDate = dayjs(startDate).add(1, "month").toDate()
-            const result = MeanStats(history.data, startDate, 7, endDate, "day")
+    //         console.log(month + "-" + year)
+    //         //@ts-ignore
+    //         const startDate = new Date(parseInt(year), parseInt(month) - 1, 1)
+    //         const endDate = dayjs(startDate).add(1, "month").toDate()
+    //         const result = MeanStats(history.data, startDate, 7, endDate, "day")
 
-            return res.status(200).json({
-                message: "Success",
-                error: false,
-                data: result,
-            })
-        } catch (e) {
-            next(e)
-        }
-    }
+    //         return res.status(200).json({
+    //             message: "Success",
+    //             error: false,
+    //             data: result,
+    //         })
+    //     } catch (e) {
+    //         next(e)
+    //     }
+    // }
 
     async delete(req: Request, res: Response, next: NextFunction) {
         const { id } = req.params

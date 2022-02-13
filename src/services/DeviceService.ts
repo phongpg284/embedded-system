@@ -1,6 +1,6 @@
 import mongoose, { Model } from "mongoose"
 import { IResponse } from "../utils/types"
-import DeviceModel, { IDevice, IDeviceUsingHistory } from "../models/DeviceModel"
+import DeviceModel, { IDevice } from "../models/DeviceModel"
 import { logger } from "../config/logger"
 
 class DeviceService {
@@ -74,31 +74,31 @@ class DeviceService {
         }
     }
 
-    async getHistory(id: string): Promise<IResponse<IDeviceUsingHistory[]>> {
-        try {
-            const item = await this.get(id)
-            if (!item.data) {
-                return {
-                    error: true,
-                    statusCode: 200,
-                    message: "Can't find device",
-                }
-            } else {
-                const history = item.data.deviceUsingHistory
-                return {
-                    error: false,
-                    statusCode: 200,
-                    data: history,
-                }
-            }
-        } catch (errors) {
-            return {
-                error: true,
-                statusCode: 500,
-                message: errors,
-            }
-        }
-    }
+    // async getHistory(id: string): Promise<IResponse<IDeviceUsingHistory[]>> {
+    //     try {
+    //         const item = await this.get(id)
+    //         if (!item.data) {
+    //             return {
+    //                 error: true,
+    //                 statusCode: 200,
+    //                 message: "Can't find device",
+    //             }
+    //         } else {
+    //             const history = item.data.deviceUsingHistory
+    //             return {
+    //                 error: false,
+    //                 statusCode: 200,
+    //                 data: history,
+    //             }
+    //         }
+    //     } catch (errors) {
+    //         return {
+    //             error: true,
+    //             statusCode: 500,
+    //             message: errors,
+    //         }
+    //     }
+    // }
 
     async getByPatientId(id: string): Promise<IResponse<IDevice>> {
         try {
@@ -175,17 +175,107 @@ class DeviceService {
         }
     }
 
+    async updateStat(id: string, data: any, key: string, stat: string): Promise<IResponse<IDevice>> {
+        try {
+            const { node_1, node_2, environment, devicePower,...updateData } = data
+            let item 
+            if (key === "node_1") {
+                if (stat === "temperature")
+                item = await this.model.findByIdAndUpdate(
+                    id,
+                    {
+                        $set: updateData,
+                        $push: { "node_1.temperature": node_1.temperature},
+                    },
+                )    
+                if (stat === "humidity")
+                item = await this.model.findByIdAndUpdate(
+                    id,
+                    {
+                        $set: updateData,
+                        $push: { "node_1.humidity": node_1.humidity},
+                    },
+                )
+            }  
+            else if (key === "node_2") {
+                if (stat === "temperature")
+                item = await this.model.findByIdAndUpdate(
+                    id,
+                    {
+                        $set: updateData,
+                        $push: { "node_2.temperature": node_2.temperature},
+                    },
+                )    
+                if (stat === "humidity")
+                item = await this.model.findByIdAndUpdate(
+                    id,
+                    {
+                        $set: updateData,
+                        $push: { "node_2.humidity": node_2.humidity},
+                    },
+                )
+            }  
+            else if (key === "environment") {
+                if (stat === "humidity")
+                item = await this.model.findByIdAndUpdate(
+                    id,
+                    {
+                        $set: updateData,
+                        $push: { "environment.humidity": environment.humidity},
+                    },
+                )
+            }  
+            else if (key === "devicePower") {
+                if (stat === "lipoBatt")
+                item = await this.model.findByIdAndUpdate(
+                    id,
+                    {
+                        $set: updateData,
+                        $push: { "devicePower.lipoBatt": devicePower.lipoBatt},
+                    },
+                )
+                if (stat === "solar")
+                item = await this.model.findByIdAndUpdate(
+                    id,
+                    {
+                        $set: updateData,
+                        $push: { "devicePower.solar": devicePower.solar},
+                    },
+                )
+            }  
+            if (!item) {
+                return {
+                    statusCode: 500,
+                    message: "Update failed",
+                    error: true,
+                }
+            }
+            return {
+                error: false,
+                statusCode: 202,
+                data: item,
+                message: "Update successfully",
+            }
+        } catch (errors) {
+            logger.error(errors)
+            return {
+                error: true,
+                statusCode: 500,
+                message: errors,
+            }
+        }
+    }
+
+
     async update(id: string, data: any): Promise<IResponse<IDevice>> {
         try {
-            const { deviceUsingHistory, ...updateData } = data
-
-            const newDeviceUsingHistory = deviceUsingHistory ?? []
-
+            const { node_1, node_2, environment, devicePower,...updateData } = data
+            console.log(node_1)
             const item = await this.model.findByIdAndUpdate(
                 id,
                 {
                     $set: updateData,
-                    $push: { deviceUsingHistory: newDeviceUsingHistory },
+                    $push: { "node_1.temperature": node_1.temperature },
                 },
                 { new: true, runValidators: true }
             )

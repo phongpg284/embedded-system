@@ -24,16 +24,16 @@ class DeviceController {
             next(e)
         }
     }
-    getHistory = async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params
-        try {
-            console.log(this)
-            const response = await this.service.getHistory(id)
-            return res.status(response.statusCode).json(response)
-        } catch (e) {
-            next(e)
-        }
-    }
+    // getHistory = async (req: Request, res: Response, next: NextFunction) => {
+    //     const { id } = req.params
+    //     try {
+    //         console.log(this)
+    //         const response = await this.service.getHistory(id)
+    //         return res.status(response.statusCode).json(response)
+    //     } catch (e) {
+    //         next(e)
+    //     }
+    // }
     getByName = async (req: Request, res: Response, next: NextFunction) => {
         const { name } = req.params
         try {

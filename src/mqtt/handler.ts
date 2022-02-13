@@ -112,8 +112,8 @@ export async function mqttMessageHandler(topicElement: string[], payload: string
         const deviceObject = new DeviceService()
         const endpoint = topicElement[topicElement.length - 1]
         const deviceName = topicElement[1]
-        const key = topicElement[3]
-        if (deviceName === "deviceID_0001") {
+        const key = topicElement[2]
+        if (deviceName === "Roof_Garden") {
             if (endpoint === "$name") {
                 const device = await deviceObject.getByName(payload)
                 if (!device) {
@@ -121,98 +121,111 @@ export async function mqttMessageHandler(topicElement: string[], payload: string
                     return
                 }
                 await deviceObject.insert({
-                    name: payload,
-                    baseHeight: 0,
-                    maxCurrent: 0,
-                    minCurrent: 0,
-                    maxFreq: 0,
-                    minFreq: 0,
-                    patientId: "",
+                    name: "Roof_Garden",
+                    node_1: {
+                        temperature: [],
+                        humidity: []
+                    },
+                    node_2: {
+                        temperature: [],
+                        humidity: []
+                    },
+                    environment: {
+                        humidity: []
+                    },
+                    devicePower: {
+                        lipoBatt: [],
+                        solar: []
+                    },
                     createdAt: new ObjectId().getTimestamp(),
                     updatedAt: new ObjectId().getTimestamp(),
                 })
                 return
             }
-            return
         }
 
+        console.log(key, "heh")
         const updatedDevice = (await deviceObject.getByName(deviceName))?.data
         if (updatedDevice) {
-            if (endpoint === "set")
-                switch (key) {
-                    case "max_current":
-                        await deviceObject.update(updatedDevice._id.toString(), {
-                            updatedAt: new ObjectId().getTimestamp(),
-                            maxCurrent: {
-                                createdAt: new ObjectId().getTimestamp(),
+            switch (key) {
+                case "Node_1_Environment":
+                    if (endpoint === "Temperature")
+                    await deviceObject.updateStat(updatedDevice._id.toString(), {
+                        updatedAt: new ObjectId().getTimestamp(),
+                        node_1: {
+                            temperature: {
                                 data: parseFloat(payload),
-                            },
-                        })
-                        break
-                    case "min_current":
-                        await deviceObject.update(updatedDevice._id.toString(), {
-                            updatedAt: new ObjectId().getTimestamp(),
-                            minCurrent: {
                                 createdAt: new ObjectId().getTimestamp(),
+                            } 
+                        },
+                    }, "node_1", "temperature")
+                    if (endpoint === "Humidity")
+                    await deviceObject.updateStat(updatedDevice._id.toString(), {
+                        updatedAt: new ObjectId().getTimestamp(),
+                        node_1: {
+                            humidity: {
                                 data: parseFloat(payload),
-                            },
-                        })
-                        break
-                    case "max_freq":
-                        await deviceObject.update(updatedDevice._id.toString(), {
-                            updatedAt: new ObjectId().getTimestamp(),
-                            maxFreq: {
                                 createdAt: new ObjectId().getTimestamp(),
+                            } 
+                        },
+                    }, "node_1", "humidity")
+                    break
+                case "Node_2_Environment":
+                    if (endpoint === "Temperature")
+                    await deviceObject.updateStat(updatedDevice._id.toString(), {
+                        updatedAt: new ObjectId().getTimestamp(),
+                        node_2: {
+                            temperature: {
                                 data: parseFloat(payload),
-                            },
-                        })
-                        break
-                    case "min_freq":
-                        await deviceObject.update(updatedDevice._id.toString(), {
-                            updatedAt: new ObjectId().getTimestamp(),
-                            minFreq: {
                                 createdAt: new ObjectId().getTimestamp(),
+                            } 
+                        },
+                    }, "node_2", "temperature")
+                    if (endpoint === "Humidity")
+                    await deviceObject.updateStat(updatedDevice._id.toString(), {
+                        updatedAt: new ObjectId().getTimestamp(),
+                        node_2: {
+                            humidity: {
                                 data: parseFloat(payload),
-                            },
-                        })
-                        break
-                    case "max_height":
-                        await deviceObject.update(updatedDevice._id.toString(), {
-                            updatedAt: new ObjectId().getTimestamp(),
-                            maxHeight: {
                                 createdAt: new ObjectId().getTimestamp(),
+                            } 
+                        },
+                    }, "node_2", "humidity")
+                    break
+                case "Dirt_Environment":
+                    if (endpoint === "Humidity")
+                    await deviceObject.updateStat(updatedDevice._id.toString(), {
+                        updatedAt: new ObjectId().getTimestamp(),
+                        environment: {
+                            humidity: {
                                 data: parseFloat(payload),
-                            },
-                        })
-                        break
-                    case "height_threshold":
-                        await deviceObject.update(updatedDevice._id.toString(), {
-                            updatedAt: new ObjectId().getTimestamp(),
-                            heightThreshold: {
                                 createdAt: new ObjectId().getTimestamp(),
+                            } 
+                        },
+                    }, "environment", "humidity")
+                    break
+                case "Device_Power":
+                    if (endpoint === "LipoBatt")
+                    await deviceObject.updateStat(updatedDevice._id.toString(), {
+                        updatedAt: new ObjectId().getTimestamp(),
+                        devicePower: {
+                            LipoBatt: {
                                 data: parseFloat(payload),
-                            },
-                        })
-                        break
-                }
-
-            if (endpoint !== "set") {
-                switch (key) {
-                    case "init_pulse":
-                        io.emit("init_pulse", payload)
-                        break
-                    case "parameter":
-                        io.emit("parameter/check", payload)
-                        break
-                    case "start_pulse":
-                        io.emit("start_pulse/check", payload)
-                        break
-                    case "step":
-                        io.emit("step", payload)
-                        break
-                    default:
-                        break
-                }
+                                createdAt: new ObjectId().getTimestamp(),
+                            } 
+                        },
+                    }, "devicePower", "lipoBatt")
+                    if (endpoint === "Solar")
+                    await deviceObject.updateStat(updatedDevice._id.toString(), {
+                        updatedAt: new ObjectId().getTimestamp(),
+                        devicePower: {
+                            solar: {
+                                data: parseFloat(payload),
+                                createdAt: new ObjectId().getTimestamp(),
+                            } 
+                        },
+                    }, "devicePower", "solar")
+                    break
             }
         }
     } catch (error) {
