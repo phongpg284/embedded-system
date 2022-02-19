@@ -1,6 +1,8 @@
-import React, { Component } from 'react'
+import React, { Component, createContext, useEffect, useState } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import './scss/style.scss'
+import { SOCKET_URL } from './app/config'
+import { io } from 'socket.io-client'
 
 const loading = (
   <div className="pt-3 text-center">
@@ -17,11 +19,31 @@ const Register = React.lazy(() => import('./views/pages/register/Register'))
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 
-class App extends Component {
-  render() {
-    return (
-      <HashRouter>
-        <React.Suspense fallback={loading}>
+export const SocketContext = createContext(null)
+
+const App = () => {
+  const [socket, setSocket] = useState(null)
+  useEffect(() => {
+    const newSocket = io(SOCKET_URL)
+    setSocket(newSocket)
+    return () => newSocket.close()
+  }, [])
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('connect', () => {
+        console.log('Connect socket')
+        socket.emit('token', 'no-token')
+      })
+      socket.on('disconnect', (reason) => {
+        console.log(reason)
+      })
+    }
+  }, [socket])
+  return (
+    <HashRouter>
+      <React.Suspense fallback={loading}>
+        <SocketContext.Provider value={socket}>
           <Switch>
             <Route exact path="/login" name="Login Page" render={(props) => <Login {...props} />} />
             <Route
@@ -34,10 +56,10 @@ class App extends Component {
             <Route exact path="/500" name="Page 500" render={(props) => <Page500 {...props} />} />
             <Route path="/" name="Home" render={(props) => <DefaultLayout {...props} />} />
           </Switch>
-        </React.Suspense>
-      </HashRouter>
-    )
-  }
+        </SocketContext.Provider>
+      </React.Suspense>
+    </HashRouter>
+  )
 }
 
 export default App

@@ -43,6 +43,7 @@
     "echarts": "^5.3.0",
     "echarts-for-react": "^3.0.2",
     "enzyme": "^3.11.0",
+    "immutability-helper": "^3.1.1",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-app-polyfill": "^2.0.0",
@@ -50,7 +51,8 @@
     "react-redux": "^7.2.6",
     "react-router-dom": "^5.3.0",
     "redux": "4.1.2",
-    "simplebar-react": "^2.3.6"
+    "simplebar-react": "^2.3.6",
+    "socket.io-client": "^4.4.1"
   },
   "devDependencies": {
     "auto-changelog": "~2.3.0",

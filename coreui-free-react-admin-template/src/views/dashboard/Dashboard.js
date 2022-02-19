@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useContext, useState } from 'react'
 
 import {
   CAvatar,
@@ -60,6 +60,8 @@ import { ENDPOINT } from 'src/app/config.js'
 import useFetch from 'src/utils/useFetch.js'
 import { useEffect } from 'react'
 import ReactECharts from 'echarts-for-react'
+import { SocketContext } from 'src/App.js'
+import update from 'immutability-helper'
 
 const WidgetsDropdown = lazy(() => import('../widgets/WidgetsDropdown.js'))
 const WidgetsBrand = lazy(() => import('../widgets/WidgetsBrand.js'))
@@ -86,6 +88,7 @@ const Dashboard = () => {
   const random = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
+  const socket = useContext(SocketContext)
 
   const [device, setDevice] = useState({})
   const [chart, setChart] = useState({})
@@ -112,7 +115,6 @@ const Dashboard = () => {
       if (Object.values(convertKey).includes(key)) {
         convertData[key] = {}
         Object.keys(device[key]).forEach((stat) => {
-          console.log(key, stat)
           const newStat = {
             data: device[key][stat].map((obj) => obj.data),
             createdAt: device[key][stat].map((obj) =>
@@ -125,6 +127,26 @@ const Dashboard = () => {
     })
     setChart(convertData)
   }, [device])
+
+  useEffect(() => {
+    if (socket && device) {
+      console.log('socket change')
+      socket.on('new_data', (payload) => {
+        const { key, stat, data, createdAt } = payload
+        setChart((prevChart) => {
+          let newObj = update(prevChart, {
+            [key]: {
+              [stat]: {
+                data: { $push: [data] },
+                createdAt: { $push: [createdAt] },
+              },
+            },
+          })
+          return newObj
+        })
+      })
+    }
+  }, [socket])
 
   const progressExample = [
     { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
@@ -246,8 +268,6 @@ const Dashboard = () => {
       activity: 'Last week',
     },
   ]
-
-  console.log(chart?.[convertKey[currentDevice]]?.[convertKey[currentStat]]?.createdAt, 'hehe')
 
   const options = {
     grid: { top: 100, right: 10, bottom: 30, left: 22 },
