@@ -19,17 +19,17 @@ export const io = new Server({
 })
 
 io.on("connection", (socket: any) => {
-    socket.on("token", (token: string) => {
-        try {
-            const decoded = jwt.verify(token, JWT_KEY)
-            const userAccountId = (<IDecodedJWT>decoded).id
-            socket.join(userAccountId)
-            emitData(socket, "notification", userAccountId + "hehe")
-        } catch (err) {
-            socket.emit("notification", "Invalid token")
-            socket.disconnect()
-        }
-    })
+    // socket.on("token", (token: string) => {
+    //     try {
+    //         const decoded = jwt.verify(token, JWT_KEY)
+    //         const userAccountId = (<IDecodedJWT>decoded).id
+    //         socket.join(userAccountId)
+    //         emitData(socket, "notification", userAccountId)
+    //     } catch (err) {
+    //         socket.emit("notification", "Invalid token")
+    //         socket.disconnect()
+    //     }
+    // })
     socket.on("init_pulse/set", (id: string) => {
         try {
             mqttPublishInitState(id)

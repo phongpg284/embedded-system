@@ -107,6 +107,17 @@ export const handleMessageMqtt = () => {
     })
 }
 
+const convertKey = {
+    Node_1_Environment: 'node_1',
+    Node_2_Environment: 'node_2',
+    Dirt_Environment: 'environment',
+    Device_Power: 'devicePower',
+    LipoBatt: 'lipoBatt',
+    Temperature: 'temperature',
+    Humidity: 'humidity',
+    Solar: 'solar',
+}
+
 export async function mqttMessageHandler(topicElement: string[], payload: string) {
     try {
         const deviceObject = new DeviceService()
@@ -144,9 +155,14 @@ export async function mqttMessageHandler(topicElement: string[], payload: string
             }
         }
 
-        console.log(key, "heh")
         const updatedDevice = (await deviceObject.getByName(deviceName))?.data
         if (updatedDevice) {
+            io.emit("new_data", {
+                data: parseFloat(payload),
+                createdAt: new ObjectId().getTimestamp(),
+                key: convertKey[key],
+                stat: convertKey[endpoint]
+            })
             switch (key) {
                 case "Node_1_Environment":
                     if (endpoint === "Temperature")
