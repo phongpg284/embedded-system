@@ -27,3 +27,12 @@ yarn
   yarn start
   ```
 - Open `localhost:3000`
+
+##MQTT Topic
+- `MANDevices/Roof_Garden/Node_1_Environment/Temperature`
+- `MANDevices/Roof_Garden/Node_1_Environment/Humidity`
+- `MANDevices/Roof_Garden/Node_2_Environment/Temperature` 
+- `MANDevices/Roof_Garden/Node_2_Environment/Humidity`
+- `MANDevices/Roof_Garden/Dirt_Environment/Humidity`
+- `MANDevices/Roof_Garden/Device_Power/LipoBatt`
+- `MANDevices/Roof_Garden/Device_Power/Solar`  
