@@ -225,7 +225,7 @@ export async function mqttMessageHandler(topicElement: string[], payload: string
                     await deviceObject.updateStat(updatedDevice._id.toString(), {
                         updatedAt: new ObjectId().getTimestamp(),
                         devicePower: {
-                            LipoBatt: {
+                            lipoBatt: {
                                 data: parseFloat(payload),
                                 createdAt: new ObjectId().getTimestamp(),
                             } 
