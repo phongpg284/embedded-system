@@ -208,7 +208,7 @@ export async function mqttMessageHandler(topicElement: string[], payload: string
                         },
                     }, "node_2", "humidity")
                     break
-                case "Dirt_Environment":
+                case "Dirt_Enviroment":
                     if (endpoint === "Humidity")
                     await deviceObject.updateStat(updatedDevice._id.toString(), {
                         updatedAt: new ObjectId().getTimestamp(),
